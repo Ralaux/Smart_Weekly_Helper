@@ -224,12 +224,12 @@ def main():
     ]
     
     cfg_comm_signed = [
-        ("Commerce Signe Total", "Si Total", C_TOTAL, 'bar'),
-        ("Commerce Signe (AC FP PB DDL CA)", "Si Smart", C_G1, 'bar'),
-        ("Commerce Signe (LP DP GP GB PM)", "Si Smart+", C_G2, 'bar'),
-        ("Ratio Signe/Total Commerce", "% Tot", C_RATIO, 'none'),
-        ("Ratio Signe/Total Commerce (G1)", "% Smart", C_RATIO, 'none'),
-        ("Ratio Signe/Total Commerce (G2)", "% Smart+", C_RATIO, 'none')
+        ("Commerce Signe Total", "Nb de contrats signés", C_TOTAL, 'bar'),
+        ("Ratio Signe/Total Commerce", "Taux de contrats signés", C_RATIO, 'none'),
+        ("Commerce Signe (AC FP PB DDL CA)", "Nb de contrats signés Smart", C_G1, 'bar'),
+        ("Ratio Signe/Total Commerce (G1)", "Taux de contrats signés Smart", C_RATIO, 'none'),
+        ("Commerce Signe (LP DP GP GB PM)", "Nb de contrats signés Smart+", C_G2, 'bar'),
+        ("Ratio Signe/Total Commerce (G2)", "Taux de contrats signés Smart+", C_RATIO, 'none')
     ]
     
     fig1 = create_portfolio_figure(
@@ -254,9 +254,9 @@ def main():
     ]
     
     cfg_anal_signed = [
-        ("Analyse Signe Total", "Si Total", C_TOTAL, 'bar'),
-        ("Analyse Signe (Telecoms Energie...)", "Si Cat1", C_G1, 'bar'),
-        ("Analyse Signe (QOFI IT...)", "Si Cat2", C_G2, 'bar')
+        ("Analyse Signe Total", "Nombre de contrats signés", C_TOTAL, 'bar'),
+        ("Analyse Signe (Telecoms Energie...)", "Nb de contrats signés Catégorie Smart", C_G1, 'bar'),
+        ("Analyse Signe (QOFI IT...)", "Nb de contrats signés Catégorie Smart+", C_G2, 'bar')
     ]
     
     fig2 = create_portfolio_figure(
