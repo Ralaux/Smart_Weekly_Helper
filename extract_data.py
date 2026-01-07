@@ -70,18 +70,12 @@ def calculate_all_kpis(df):
     results.append(format_kpi_result("Commerce (LP DP GP GB PM)", commerce_g2))
     print(f"Commerce Group 2 (last 24m): {commerce_g2.sum()}")
 
-    # Verification: G1 + G2 == Total
-    diff_commerce = commerce_total - (commerce_g1 + commerce_g2)
-    if diff_commerce.sum() != 0:
-        print(f"WARNING: Commerce Total != G1 + G2. Difference: {diff_commerce.sum()}")
-        # We could add an 'Others' line or just warn. User said it MUST be equal.
-    else:
-        print("Verification OK: Commerce Total == G1 + G2")
-
     # 4. Total / 15
     commerce_div_15 = (commerce_total / 15).round(2)
     results.append(format_kpi_result("Commerce / 15", commerce_div_15))
-
+    
+    # SPACER
+    results.append({"KPI": "SPACE"})
 
     # --- Table 2: Analyse ---
     print("\n--- Computing 'Analyse' KPIs ---")
@@ -103,14 +97,9 @@ def calculate_all_kpis(df):
     analyse_g2 = kpi_calculations.count_projects(df, "Analyse", associates_analyse_g2)
     results.append(format_kpi_result("Analyse (LP GB)", analyse_g2))
     print(f"Analyse Group 2 (last 24m): {analyse_g2.sum()}")
-
-    # Verification: G1 + G2 == Total
-    diff_analyse = analyse_total - (analyse_g1 + analyse_g2)
-    if diff_analyse.sum() != 0:
-        print(f"WARNING: Analyse Total != G1 + G2. Difference: {diff_analyse.sum()}")
-    else:
-        print("Verification OK: Analyse Total == G1 + G2")
-
+    
+    # SPACER
+    results.append({"KPI": "SPACE"})
 
     # --- Table 3: Analyse des signatures ---
     print("\n--- Computing 'Signatures' KPIs ---")
@@ -130,16 +119,6 @@ def calculate_all_kpis(df):
     commerce_signed_g2 = kpi_calculations.count_projects(df, "Commerce", associates=associates_commerce_g2, is_signed=True)
     results.append(format_kpi_result("Commerce Signe (LP DP GP GB PM)", commerce_signed_g2))
     print(f"Commerce Signé Group 2 (last 24m): {commerce_signed_g2.sum()}")
-
-    # 4. Ratio: Commerce Signé / Commerce Total
-    # Avoid division by zero by replacing 0 with NaN or handling it, but pandas handles it (inf)
-    # Ideally fillna(0) if no projects.
-    # We use totals from Table 1: commerce_total, commerce_g1, commerce_g2
-    
-    # 4. Ratio: Commerce Signé / Commerce Total
-    # Avoid division by zero by replacing 0 with NaN or handling it, but pandas handles it (inf)
-    # Ideally fillna(0) if no projects.
-    # We use totals from Table 1: commerce_total, commerce_g1, commerce_g2
     
     # Global Ratio
     ratio_total = (commerce_signed_total / commerce_total.replace(0, 1)).round(2)
@@ -157,10 +136,9 @@ def calculate_all_kpis(df):
     total_val_ratio_g2 = round(commerce_signed_g2.sum() / commerce_g2.sum(), 2) if commerce_g2.sum() > 0 else 0
     results.append(format_kpi_result("Ratio Signe/Total Commerce (G2)", ratio_g2, total_value=total_val_ratio_g2))
     
-    # Also fix Commerce / 15 for consistency (it's a sum so default sum works, but let's be sure)
-    # Actually Commerce / 15 is a division of the count, so Sum(Monthly/15) == Sum(Monthly)/15. 
-    # The default sum behavior is correct for that one.
-    
+    # SPACER
+    results.append({"KPI": "SPACE"})
+
     # === Analyse Signé ===
     
     cats_analyse_g1 = ["Télécoms", "Energie", "Transports", "Copieurs", "Facilities", "Nettoyage / Gardiennage", "Déchets"]
@@ -182,15 +160,8 @@ def calculate_all_kpis(df):
     results.append(format_kpi_result("Analyse Signe (QOFI IT...)", analyse_signed_g2))
     print(f"Analyse Signé Cat G2 (last 24m): {analyse_signed_g2.sum()}")
     
-    # Verification Analyse Signé
-    # Note: If there are other categories, this might not match total. But assuming README covers all relevant ones for the KPI breakdown.
-    # The README implies specific groups. Let's check difference.
-    diff_analyse_signed = analyse_signed_total - (analyse_signed_g1 + analyse_signed_g2)
-    if diff_analyse_signed.sum() != 0:
-        print(f"WARNING: Analyse Signé Total != Cat G1 + Cat G2. Difference: {diff_analyse_signed.sum()} (Maybe other categories exist)")
-    else:
-        print("Verification OK: Analyse Signé Total == Cat G1 + Cat G2")
-    
+    # SPACER
+    results.append({"KPI": "SPACE"})
     
     # --- Table 4: KPIs par Categorie ---
     print("\n--- Computing 'Category' KPIs (Tables) ---")
@@ -229,13 +200,16 @@ def calculate_all_kpis(df):
             )
             results.append(format_kpi_result(kpi_name, res))
         
+        # SPACER between each block of 8 categories
+        results.append({"KPI": "SPACE"})
+        
     print(f"Generated 4 KPIs types x {len(target_categories)} categories = {4 * len(target_categories)} KPIs.")
 
     return results
 
-def save_results(results, output_path):
+def save_results(results, output_excel_path):
     """
-    Saves the list of results to a CSV file.
+    Saves the list of results to an Excel file (for Manual & Dashboard).
     """
     if not results:
         print("No results to save.")
@@ -245,13 +219,21 @@ def save_results(results, output_path):
     
     # Reorder columns: KPI, then dates sorted, then Total
     cols = df_results.columns.tolist()
+    # Filter out columns that are not dates or KPI/Total
     date_cols = sorted([c for c in cols if c not in ["KPI", "Total"]])
     final_cols = ["KPI"] + date_cols + ["Total"]
     
     df_results = df_results[final_cols]
     
-    df_results.to_csv(output_path, index=False)
-    print(f"Results exported to {output_path}")
+    # --- Save Excel (With Spaces) ---
+    # Replace "SPACE" in KPI column with empty string
+    df_excel = df_results.copy()
+    df_excel['KPI'] = df_excel['KPI'].replace('SPACE', '')
+    # Fill NaN with empty string for cleaner look
+    df_excel = df_excel.fillna('')
+    
+    df_excel.to_excel(output_excel_path, index=False)
+    print(f"Results exported to {output_excel_path}")
 
 def main():
     print("Starting data extraction...")
@@ -260,7 +242,7 @@ def main():
     if df is not None:
         print("Data loaded successfully.")
         results = calculate_all_kpis(df)
-        save_results(results, OUTPUT_CSV)
+        save_results(results, "Donnees_Brutes_KPI.xlsx")
     else:
         print("Failed to load data.")
 
