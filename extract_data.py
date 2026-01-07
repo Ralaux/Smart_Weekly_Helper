@@ -235,9 +235,13 @@ def save_results(results, output_excel_path):
     df_excel.to_excel(output_excel_path, index=False)
     print(f"Results exported to {output_excel_path}")
 
-def main():
+def main(input_file=None):
     print("Starting data extraction...")
-    df = load_data(FILE_PATH, SHEET_NAME)
+    
+    file_to_load = input_file if input_file else FILE_PATH
+    print(f"Loading file: {file_to_load}")
+    
+    df = load_data(file_to_load, SHEET_NAME)
     
     if df is not None:
         print("Data loaded successfully.")
