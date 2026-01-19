@@ -1,11 +1,15 @@
-import extract_data
-import generate_dashboard
 import os
 import sys
 import tkinter as tk
 from tkinter import filedialog
+import extract_data
+import generate_dashboard
 
 def main():
+    """
+    Main application entry point.
+    Orchestrates file selection, data extraction, and dashboard generation.
+    """
     print("=== Smart Weekly Helper ===")
     
     # 0. Select Input File

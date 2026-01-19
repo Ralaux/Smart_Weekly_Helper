@@ -2,16 +2,17 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.io as pio
+from typing import List, Tuple, Optional, Any, Dict
 
-# Configuration
+# --- Configuration & Constants ---
 INPUT_DATA = "Donnees_Brutes_KPI.xlsx"
 OUTPUT_HTML = "dashboard_kpi.html"
 
 # Colors
-C_TOTAL = '#2C3E50' # Dark Blue
-C_G1 = '#2C3E50'    # Blue (User Preference)
-C_G2 = '#5B80A4'    # Light Blue (User Preference)
-C_RATIO = '#E74C3C' # Red for ratio line
+C_TOTAL = '#2C3E50'  # Dark Blue
+C_G1 = '#2C3E50'     # Blue (User Preference)
+C_G2 = '#5B80A4'     # Light Blue (User Preference)
+C_RATIO = '#E74C3C'  # Red for ratio line
 
 # 8 Distinct colors for categories
 CAT_COLORS = [
@@ -24,27 +25,37 @@ TARGET_CATS = [
     "Facilities", "Dechets", "QOFI Location Engins EPI", "Materiel IT"
 ]
 
-def load_data():
+def load_data(file_path: str = INPUT_DATA) -> Optional[pd.DataFrame]:
+    """
+    Loads data from the Excel file and filters out empty rows.
+    """
     try:
-        # Load Excel
-        df = pd.read_excel(INPUT_DATA)
-        # Filter out empty spacer rows (where KPI is empty string or NaN)
+        df = pd.read_excel(file_path)
+        # Filter out empty spacer rows
         df = df[df['KPI'].notna() & (df['KPI'] != '')]
         return df
     except Exception as e:
         print(f"Error loading Data: {e}")
         return None
 
-def get_monthly_columns(df):
+def get_monthly_columns(df: pd.DataFrame) -> List[str]:
+    """Extracts date columns from the dataframe."""
     return [c for c in df.columns if c not in ['KPI', 'Total']]
 
-def get_values(df, kpi, months):
+def get_values(df: pd.DataFrame, kpi: str, months: List[str]) -> List[float]:
+    """Retrieves values for a specific KPI across specific months."""
     subset = df[df['KPI'] == kpi]
-    if subset.empty: return [0]*len(months)
-    return subset[months].values.flatten()
+    if subset.empty:
+        return [0.0] * len(months)
+    return subset[months].values.flatten().tolist()
 
-def create_table_trace(df, kpis_config, months, total_only=False):
-    """Helper to generate a Table trace"""
+def create_table_trace(
+    df: pd.DataFrame, 
+    kpis_config: List[Tuple[str, str, str, str]], 
+    months: List[str], 
+    total_only: bool = False
+) -> go.Table:
+    """Helper to generate a Table trace."""
     header = ["Mois"] + [cfg[1] for cfg in kpis_config]
     
     if total_only:
@@ -59,7 +70,6 @@ def create_table_trace(df, kpis_config, months, total_only=False):
         if not subset.empty:
             total_val = subset['Total'].values[0]
             
-            # Formatting logic
             is_ratio = "Ratio" in kpi
             
             # Format Total
@@ -67,7 +77,8 @@ def create_table_trace(df, kpis_config, months, total_only=False):
                 try:
                     tv = float(total_val)
                     total_val_fmt = f"{round(tv * 100)}%"
-                except: total_val_fmt = total_val
+                except (ValueError, TypeError):
+                    total_val_fmt = total_val
             else:
                 total_val_fmt = round(total_val, 2)
             
@@ -77,9 +88,13 @@ def create_table_trace(df, kpis_config, months, total_only=False):
                 monthly_vals = subset[months].values.flatten().tolist()
                 # Format Monthly
                 if is_ratio:
-                    try:
-                        monthly_vals = [f"{round(float(v)*100)}%" for v in monthly_vals]
-                    except: pass
+                    formatted_vals = []
+                    for v in monthly_vals:
+                        try:
+                            formatted_vals.append(f"{round(float(v)*100)}%")
+                        except (ValueError, TypeError):
+                            formatted_vals.append(v)
+                    monthly_vals = formatted_vals
                 else:
                     monthly_vals = [round(v, 2) for v in monthly_vals]
                 
@@ -87,18 +102,23 @@ def create_table_trace(df, kpis_config, months, total_only=False):
             
             data_cols.append(col_data)
         else:
-            count = 1 if total_only else len(months)+1
-            data_cols.append([0]*count)
+            count = 1 if total_only else len(months) + 1
+            data_cols.append([0] * count)
             
     return go.Table(
-        header=dict(values=header, fill_color='#2C3E50', font=dict(color='white', size=10)),
+        header=dict(values=header, fill_color=C_TOTAL, font=dict(color='white', size=10)),
         cells=dict(values=data_cols, fill_color='#ECF0F1', font=dict(color='black', size=9), height=24)
     )
 
-def create_simple_figure(df, title, kpis_config, months, show_legend=True):
+def create_simple_figure(
+    df: pd.DataFrame, 
+    title: str, 
+    kpis_config: List[Tuple[str, str, str, str]], 
+    months: List[str], 
+    show_legend: bool = True
+) -> go.Figure:
     """
     Creates a simple figure with 1 row, 1 col (Full Width Chart).
-    Used for: Portfolio Inputs, Analyse Signed, Categories.
     """
     fig = make_subplots(rows=1, cols=1, subplot_titles=(title,))
     
@@ -106,26 +126,41 @@ def create_simple_figure(df, title, kpis_config, months, show_legend=True):
         raw_vals = get_values(df, kpi, months)
         y_vals = [float(v) for v in raw_vals]
         if chart_type == 'bar':
-            fig.add_trace(go.Bar(x=months, y=y_vals, name=label, marker_color=color, orientation='v', showlegend=show_legend), row=1, col=1)
+            fig.add_trace(
+                go.Bar(
+                    x=months, 
+                    y=y_vals, 
+                    name=label, 
+                    marker_color=color, 
+                    orientation='v', 
+                    showlegend=show_legend
+                ), 
+                row=1, col=1
+            )
 
     fig.update_layout(
         height=500, 
-        barmode='stack', # Default to stack, category uses group (override usually or pass arg)
+        barmode='stack',
         template="plotly_white",
-        legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="left", x=0), # V23: Left + Higher
-        margin=dict(l=20, r=20, t=140, b=50) # V23: Increased top margin
+        legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="left", x=0),
+        margin=dict(l=20, r=20, t=140, b=50)
     )
     
-    # Correct X-axes
     fig.update_xaxes(type='category', tickmode='linear', dtick=1, tickangle=-45, row=1, col=1)
     fig.update_yaxes(autorange=True, row=1, col=1)
     
     return fig
 
-def create_mixed_figure(df, title, chart_config, table_config, months, table_total_only=False):
+def create_mixed_figure(
+    df: pd.DataFrame, 
+    title: str, 
+    chart_config: List[Tuple[str, str, str, str]], 
+    table_config: List[Tuple[str, str, str, str]], 
+    months: List[str], 
+    table_total_only: bool = False
+) -> go.Figure:
     """
     Creates a figure with Chart (Left) + Table (Right).
-    Used for: Commerce Signed (with Ratios).
     """
     fig = make_subplots(
         rows=1, cols=2,
@@ -139,7 +174,17 @@ def create_mixed_figure(df, title, chart_config, table_config, months, table_tot
         raw_vals = get_values(df, kpi, months)
         y_vals = [float(v) for v in raw_vals]
         if chart_type == 'bar':
-            fig.add_trace(go.Bar(x=months, y=y_vals, name=label, marker_color=color, orientation='v', showlegend=True), row=1, col=1)
+            fig.add_trace(
+                go.Bar(
+                    x=months, 
+                    y=y_vals, 
+                    name=label, 
+                    marker_color=color, 
+                    orientation='v', 
+                    showlegend=True
+                ), 
+                row=1, col=1
+            )
             
     # Table
     table_trace = create_table_trace(df, table_config, months, total_only=table_total_only)
@@ -149,8 +194,8 @@ def create_mixed_figure(df, title, chart_config, table_config, months, table_tot
         height=500, 
         barmode='stack',
         template="plotly_white",
-        legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="left", x=0), # V23: Left + Higher
-        margin=dict(l=20, r=20, t=140, b=50) # V23: Increased top margin
+        legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="left", x=0),
+        margin=dict(l=20, r=20, t=140, b=50)
     )
     
     fig.update_xaxes(type='category', tickmode='linear', dtick=1, tickangle=-45, row=1, col=1)
@@ -158,84 +203,73 @@ def create_mixed_figure(df, title, chart_config, table_config, months, table_tot
     
     return fig
 
-def create_category_figure(df, title, suffix, months):
+def create_category_figure(
+    df: pd.DataFrame, 
+    title: str, 
+    suffix: str, 
+    months: List[str]
+) -> go.Figure:
     """
-    Creates a figure with 1 row:
-    Row 1: Chart (Grouped Bars for 8 cats)
-    (Table removed in V20)
+    Creates a figure with 1 row containing Grouped Bars for categories.
     """
-    fig = make_subplots(
-        rows=1, cols=1,
-        subplot_titles=(title,)
-    )
+    fig = make_subplots(rows=1, cols=1, subplot_titles=(title,))
     
-    # --- 1. Chart (Top) ---
     for i, cat in enumerate(TARGET_CATS):
         kpi_name = f"{cat} {suffix}"
         raw_vals = get_values(df, kpi_name, months)
         y_vals = [float(v) for v in raw_vals]
         
-        # Explicitly FORCE Vertical
-        fig.add_trace(go.Bar(x=months, y=y_vals, name=cat, marker_color=CAT_COLORS[i], orientation='v'), row=1, col=1)
+        fig.add_trace(
+            go.Bar(
+                x=months, 
+                y=y_vals, 
+                name=cat, 
+                marker_color=CAT_COLORS[i], 
+                orientation='v'
+            ), 
+            row=1, col=1
+        )
 
     fig.update_layout(
         height=500, 
         barmode='group', 
         template="plotly_white",
-        legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="left", x=0), # V23: Left + Higher
-        margin=dict(l=20, r=20, t=140, b=50) # V23: Increased top margin
+        legend=dict(orientation="h", yanchor="bottom", y=1.15, xanchor="left", x=0),
+        margin=dict(l=20, r=20, t=140, b=50)
     )
     
-    # Correct X-axis
     fig.update_xaxes(type='category', tickmode='linear', dtick=1, tickangle=-45, row=1, col=1)
     
     return fig
 
-def main():
-    print("Generating Dashboard V23 (Left Legends, More Spacing)...")
+def main() -> None:
+    print("Generating Dashboard (Cleaned & Refactored)...")
     df = load_data()
-    if df is None: return
+    if df is None:
+        return
     
     months = get_monthly_columns(df)
     
-    # --- 1. Commerce Portfolio ---
-    # Full config for Table (Brut)
-    cfg_comm_table_raw = [
-        ("Commerce Total", "Total", C_TOTAL, 'bar'),
-        ("Commerce (AC FP PB DDL CA)", "Smart", C_G1, 'bar'),
-        ("Commerce (LP DP GP GB PM)", "Smart +", C_G2, 'bar'),
-        ("Commerce / 15", "Ratio", C_RATIO, 'none')
-    ]
+    # --- Configuration ---
     
-    # Subset config for Stacked Chart (Only Smart and Smart+)
+    # 1. COMMERCE
     cfg_comm_chart_only = [
         ("Commerce (AC FP PB DDL CA)", "Smart", C_G1, 'bar'),
         ("Commerce (LP DP GP GB PM)", "Smart +", C_G2, 'bar')
     ]
     
-    # V18 Update: Separate configs for Chart and Table
-    
-    # 1. COMMERCE: Signed Chart (Bars) + Signed Table (Ratios Only)
     cfg_comm_signed_chart = [
-        ("Commerce Signe (AC FP PB DDL CA)", "Smart", C_G1, 'bar'),   # V21: Renamed to Smart
-        ("Commerce Signe (LP DP GP GB PM)", "Smart +", C_G2, 'bar')   # V21: Renamed to Smart +
+        ("Commerce Signe (AC FP PB DDL CA)", "Smart", C_G1, 'bar'),
+        ("Commerce Signe (LP DP GP GB PM)", "Smart +", C_G2, 'bar')
     ]
-    # Ratios for table
+    
     cfg_comm_signed_table = [
         ("Ratio Signe/Total Commerce", "Taux de contrats signés", C_RATIO, 'none'),
         ("Ratio Signe/Total Commerce (G1)", "Taux de contrats signés Smart", C_RATIO, 'none'),
         ("Ratio Signe/Total Commerce (G2)", "Taux de contrats signés Smart+", C_RATIO, 'none')
     ]
     
-    # V22: Generate 4 Separate Figures for Portfolios
-    
-    # 1. Commerce Input
-    fig1 = create_simple_figure(df, "Entrées Portefeuille Commerce", cfg_comm_chart_only, months)
-    
-    # 2. Commerce Signed (Mixed Layout)
-    fig2 = create_mixed_figure(df, "Projets Signés (Commerce)", cfg_comm_signed_chart, cfg_comm_signed_table, months, table_total_only=True)
-
-    # --- 2. Analyse Portfolio ---
+    # 2. ANALYSE
     cfg_anal_chart_only = [
         ("Analyse (AC FP PB DDL CA)", "Smart", C_G1, 'bar'),
         ("Analyse (LP DP GP GB PM)", "Smart +", C_G2, 'bar')
@@ -246,10 +280,18 @@ def main():
         ("Analyse Signe (LP DP GP GB PM)", "Smart +", C_G2, 'bar')
     ]
 
+    # --- Figure Generation ---
+    
+    # 1. Commerce Input
+    fig1 = create_simple_figure(df, "Entrées Portefeuille Commerce", cfg_comm_chart_only, months)
+    
+    # 2. Commerce Signed
+    fig2 = create_mixed_figure(df, "Projets Signés (Commerce)", cfg_comm_signed_chart, cfg_comm_signed_table, months, table_total_only=True)
+
     # 3. Analyse Input
     fig3 = create_simple_figure(df, "Entrées Portefeuille Analyse", cfg_anal_chart_only, months)
 
-    # 4. Analyse Signed (Full Layout - Simple Figure)
+    # 4. Analyse Signed
     fig4 = create_simple_figure(df, "Projets Signés (Analyse)", cfg_anal_signed_chart, months)
 
     # --- Categories ---
@@ -258,8 +300,7 @@ def main():
     fig7 = create_category_figure(df, "Détail par Catégories : Entrées Portefeuille Analyse", "Analyse", months)
     fig8 = create_category_figure(df, "Détail par Catégories : Projets signés", "Analyse Signe", months)
 
-    # --- Generate HTML ---
-    # Convert each fig to HTML div
+    # --- HTML Generator ---
     config = {'responsive': True}
     
     html_content = f"""
@@ -298,7 +339,7 @@ def main():
     with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
         f.write(html_content)
         
-    print(f"Dashboard V22 saved to {OUTPUT_HTML} (Split Figures)")
+    print(f"Dashboard saved to {OUTPUT_HTML}")
 
 if __name__ == "__main__":
     main()

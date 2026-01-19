@@ -1,92 +1,64 @@
-# KPI_Euklead:
+# Smart Weekly Helper
 
-## Introduction
+## Description
+**Smart Weekly Helper** est un outil d'automatisation conçu pour simplifier le reporting hebdomadaire. 
 
-All KPIs are calculated on the previous 24 months and aggregated monthly.
+À partir d'un fichier Excel d'export (Base Stats), l'application :
+1. **Extrait et nettoie** les données projets.
+2. **Calcule** automatiquement les KPIs pour les départements Commerce et Analyse (Projets entrants, Signatures, Ratios).
+3. **Génère** deux fichiers de sortie :
+   - 📊 `Donnees_Brutes_KPI.xlsx` : Un fichier Excel contenant tous les tableaux de résultats calculés.
+   - 📈 `dashboard_kpi.html` : Un tableau de bord interactif et visuel (graphiques Plotly) consultable dans n'importe quel navigateur web.
 
-## KPIs:
+## Installation
 
-### Analyse du protefeuille:
+### Prérequis
+- **Python 3.8** ou version supérieure.
+- Un terminal de commande (PowerShell, CMD, ou Terminal).
 
-#### Commerce:
+### Installation des dépendances
+1. Ouvrez votre terminal ou invite de commande.
+2. Naviguez vers le dossier du projet.
+3. Installez les librairies nécessaires via `pip` :
 
-- Number of rows with:  
-  "Type de projet" = "Commerce"
-- Number of rows with:  
-  "Type de projet" = "Commerce"  
-  AND "Associé" = "AC" "FP" "PB" "DDL" or "CA"
-- Number of rows with:  
-  "Type de projet" = "Commerce"  
-  AND "Associé" = "LP" "DP" "GP" "GB" or "PM"
-- Number of rows with "Type de projet" = "Commerce" divided by 15
+```bash
+pip install -r requirements.txt
+```
 
-#### Analyse:
+*Le fichier `requirements.txt` contient les bibliothèques `pandas`, `plotly`, `openpyxl`, etc.*
 
-- Number of rows with:  
-  "Type de projet" = "Analyse"
-- Number of rows with:  
-  "Type de projet" = "Analyse"  
-  AND "Associé" = "PB" "DDL" or "CA"
-- Number of rows with:  
-  "Type de projet" = "Analyse"  
-  AND "Associé" = "LP" or "GB"
+## Utilisation
 
-### Analyse des signatures:
+### Lancement rapide
+La méthode la plus simple est d'utiliser le script principal qui orchestre tout le processus :
 
-#### Commerce:
+1. Lancez le script :
+   ```bash
+   python run_app.py
+   ```
+2. Une fenêtre de dialogue s'ouvre. **Sélectionnez votre fichier Excel source** (ex: `Fichier sivi Stats cce Smart.xlsx`).
+3. Laissez l'outil travailler. La console affichera la progression.
+4. Une fois terminé ("SUCCÈS !"), vous trouverez les fichiers générés dans le dossier du projet.
 
-- Number of rows with:  
-  "Type de projet" = "Commerce"  
-  AND ("Etat 1" = "Signé" OR "Etat 2" = "Signé" OR "Etat 3" = "Signé" OR "Etat 4" = "Signé")
-- Number of rows with:  
-  "Type de projet" = "Commerce"  
-  AND "Associé" = "AC" "FP" "PB" "DDL" or "CA"  
-  AND ("Etat 1" = "Signé" OR "Etat 2" = "Signé" OR "Etat 3" = "Signé" OR "Etat 4" = "Signé")
-- Number of rows with:  
-  "Type de projet" = "Commerce"  
-  AND "Associé" = "LP" "DP" "GP" "GB" or "PM"  
-  AND ("Etat 1" = "Signé" OR "Etat 2" = "Signé" OR "Etat 3" = "Signé" OR "Etat 4" = "Signé")
-- (Number of rows with:  
-  "Type de projet" = "Commerce"  
-  AND ("Etat 1" = "Signé" OR "Etat 2" = "Signé" OR "Etat 3" = "Signé" OR "Etat 4" = "Signé"))  
-  Divided by:  
-  (Number of rows with:
-  "Type de projet" = "Commerce")
-- (Number of rows with:  
-  "Type de projet" = "Commerce"  
-  AND "Associé" = "AC" "FP" "PB" "DDL" or "CA"  
-  AND ("Etat 1" = "Signé" OR "Etat 2" = "Signé" OR "Etat 3" = "Signé" OR "Etat 4" = "Signé"))  
-  Divided by:  
-  (Number of rows with:
-  "Type de projet" = "Commerce"  
-  AND "Associé" = "AC" "FP" "PB" "DDL" or "CA")
-- (Number of rows with:  
-  "Type de projet" = "Commerce"  
-  AND "Associé" = "LP" "DP" "GP" "GB" or "PM"  
-  AND ("Etat 1" = "Signé" OR "Etat 2" = "Signé" OR "Etat 3" = "Signé" OR "Etat 4" = "Signé"))  
-  Divided by:  
-  (Number of rows with:
-  "Type de projet" = "Commerce"  
-  AND "Associé" = "LP" "DP" "GP" "GB" or "PM")
+### Fichiers Générés
+- **`Donnees_Brutes_KPI.xlsx`** : Utilisez ce fichier pour vos analyses chiffrées précises ou pour copier-coller les tableaux.
+- **`dashboard_kpi.html`** : Double-cliquez pour ouvrir le rapport visuel dans Chrome, Edge ou Firefox.
 
-#### Analyse:
+## Développement & Maintenance
 
-- Number of rows with:  
-  "Type de projet" = "Analyse"  
-  AND ("Etat 1" = "Signé" OR "Etat 2" = "Signé" OR "Etat 3" = "Signé" OR "Etat 4" = "Signé")
-- Number of rows with:  
-  "Type de projet" = "Analyse"  
-  AND ("Etat 1" = "Signé" OR "Etat 2" = "Signé" OR "Etat 3" = "Signé" OR "Etat 4" = "Signé")  
-  AND "Catégorie" = "Télécoms" "Energie" "Transports" "Copieurs" "Facilities" "Nettoyage / Gardiennage" "Déchets"
-- Number of rows with:  
-  "Type de projet" = "Analyse"  
-  AND ("Etat 1" = "Signé" OR "Etat 2" = "Signé" OR "Etat 3" = "Signé" OR "Etat 4" = "Signé")  
-  AND "Catégorie" = "QOFI / Location Engins / EPI" "Matériel IT"
+Le code a été structuré pour être maintenable et respecte les standards PEP 8.
 
-### Tables
+### Structure du projet
+- `run_app.py` : Point d'entrée principal (GUI de sélection de fichier).
+- `extract_data.py` : Logique d'extraction des données, calcul via `kpi_calculations`, et export Excel.
+- `generate_dashboard.py` : Création des graphiques Plotly et génération du HTML.
+- `kpi_calculations.py` : Cœur logique contenant les règles de filtrage et de calcul des dates.
+- `tests/` : Dossier contenant les tests unitaires.
 
-For each table, there is one column for each month of the last 24 months and one row for each one of the 9 categories (Smart and Smart +)
+### Tests Unitaires
+Pour vérifier que les calculs sont toujours corrects après une modification, exécutez la suite de tests :
 
-- Table 1: Commerce
-- Table 2: Analyse
-- Table 3: Analyse Signé
+```bash
+python -m unittest discover tests
+```
+*Tous les tests doivent afficher "OK".*
