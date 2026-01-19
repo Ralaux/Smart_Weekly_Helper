@@ -52,8 +52,8 @@ def calculate_all_kpis(df):
     # --- Table 1: Commerce ---
     print("\n--- Computing 'Commerce' KPIs ---")
     
-    associates_commerce_g1 = ["AC", "FP", "PB", "DDL", "CA"]
-    associates_commerce_g2 = ["LP", "DP", "GP", "GB", "PM"]
+    associates_smart = ["AC", "FP", "PB", "DDL", "CA"]
+    associates_smartplus = ["LP", "DP", "GP", "GB", "PM"]
 
     # 1. Total Commerce
     commerce_total = kpi_calculations.count_projects(df, "Commerce")
@@ -61,12 +61,12 @@ def calculate_all_kpis(df):
     print(f"Commerce Total (last 24m): {commerce_total.sum()}")
 
     # 2. Commerce Group 1
-    commerce_g1 = kpi_calculations.count_projects(df, "Commerce", associates_commerce_g1)
+    commerce_g1 = kpi_calculations.count_projects(df, "Commerce", associates_smart)
     results.append(format_kpi_result("Commerce (AC FP PB DDL CA)", commerce_g1))
     print(f"Commerce Group 1 (last 24m): {commerce_g1.sum()}")
 
     # 3. Commerce Group 2
-    commerce_g2 = kpi_calculations.count_projects(df, "Commerce", associates_commerce_g2)
+    commerce_g2 = kpi_calculations.count_projects(df, "Commerce", associates_smartplus)
     results.append(format_kpi_result("Commerce (LP DP GP GB PM)", commerce_g2))
     print(f"Commerce Group 2 (last 24m): {commerce_g2.sum()}")
 
@@ -79,9 +79,6 @@ def calculate_all_kpis(df):
 
     # --- Table 2: Analyse ---
     print("\n--- Computing 'Analyse' KPIs ---")
-    
-    associates_analyse_g1 = ["PB", "DDL", "CA"]
-    associates_analyse_g2 = ["LP", "GB"]
 
     # 1. Total Analyse
     analyse_total = kpi_calculations.count_projects(df, "Analyse")
@@ -89,13 +86,13 @@ def calculate_all_kpis(df):
     print(f"Analyse Total (last 24m): {analyse_total.sum()}")
 
     # 2. Analyse Group 1
-    analyse_g1 = kpi_calculations.count_projects(df, "Analyse", associates_analyse_g1)
-    results.append(format_kpi_result("Analyse (PB DDL CA)", analyse_g1))
+    analyse_g1 = kpi_calculations.count_projects(df, "Analyse", associates_smart)
+    results.append(format_kpi_result("Analyse (AC FP PB DDL CA)", analyse_g1))
     print(f"Analyse Group 1 (last 24m): {analyse_g1.sum()}")
 
     # 3. Analyse Group 2
-    analyse_g2 = kpi_calculations.count_projects(df, "Analyse", associates_analyse_g2)
-    results.append(format_kpi_result("Analyse (LP GB)", analyse_g2))
+    analyse_g2 = kpi_calculations.count_projects(df, "Analyse", associates_smartplus)
+    results.append(format_kpi_result("Analyse (LP DP GP GB PM)", analyse_g2))
     print(f"Analyse Group 2 (last 24m): {analyse_g2.sum()}")
     
     # SPACER
@@ -111,12 +108,12 @@ def calculate_all_kpis(df):
     print(f"Commerce Signé Total (last 24m): {commerce_signed_total.sum()}")
 
     # 2. Commerce Signé Group 1
-    commerce_signed_g1 = kpi_calculations.count_projects(df, "Commerce", associates=associates_commerce_g1, is_signed=True)
+    commerce_signed_g1 = kpi_calculations.count_projects(df, "Commerce", associates=associates_smart, is_signed=True)
     results.append(format_kpi_result("Commerce Signe (AC FP PB DDL CA)", commerce_signed_g1))
     print(f"Commerce Signé Group 1 (last 24m): {commerce_signed_g1.sum()}")
 
     # 3. Commerce Signé Group 2
-    commerce_signed_g2 = kpi_calculations.count_projects(df, "Commerce", associates=associates_commerce_g2, is_signed=True)
+    commerce_signed_g2 = kpi_calculations.count_projects(df, "Commerce", associates=associates_smartplus, is_signed=True)
     results.append(format_kpi_result("Commerce Signe (LP DP GP GB PM)", commerce_signed_g2))
     print(f"Commerce Signé Group 2 (last 24m): {commerce_signed_g2.sum()}")
     
@@ -140,25 +137,22 @@ def calculate_all_kpis(df):
     results.append({"KPI": "SPACE"})
 
     # === Analyse Signé ===
-    
-    cats_analyse_g1 = ["Télécoms", "Energie", "Transports", "Copieurs", "Facilities", "Nettoyage / Gardiennage", "Déchets"]
-    # Based on README: "Category" = "QOFI / Location Engins / EPI" "Matériel IT"
-    cats_analyse_g2 = ["QOFI / Location Engins / EPI", "Matériel IT"]
+    # Updated to use Associate Groups (Same as Commerce) instead of Categories
 
     # 1. Total Analyse Signé
     analyse_signed_total = kpi_calculations.count_projects(df, "Analyse", is_signed=True)
     results.append(format_kpi_result("Analyse Signe Total", analyse_signed_total))
     print(f"Analyse Signé Total (last 24m): {analyse_signed_total.sum()}")
 
-    # 2. Analyse Signé Cat G1
-    analyse_signed_g1 = kpi_calculations.count_projects(df, "Analyse", categories=cats_analyse_g1, is_signed=True)
-    results.append(format_kpi_result("Analyse Signe (Telecoms Energie...)", analyse_signed_g1))
-    print(f"Analyse Signé Cat G1 (last 24m): {analyse_signed_g1.sum()}")
+    # 2. Analyse Signé Group 1 (Smart) - Using Commerce G1 list
+    analyse_signed_g1 = kpi_calculations.count_projects(df, "Analyse", associates=associates_smart, is_signed=True)
+    results.append(format_kpi_result("Analyse Signe (AC FP PB DDL CA)", analyse_signed_g1))
+    print(f"Analyse Signé Group 1 (last 24m): {analyse_signed_g1.sum()}")
 
-    # 3. Analyse Signé Cat G2
-    analyse_signed_g2 = kpi_calculations.count_projects(df, "Analyse", categories=cats_analyse_g2, is_signed=True)
-    results.append(format_kpi_result("Analyse Signe (QOFI IT...)", analyse_signed_g2))
-    print(f"Analyse Signé Cat G2 (last 24m): {analyse_signed_g2.sum()}")
+    # 3. Analyse Signé Group 2 (Smart +) - Using Commerce G2 list
+    analyse_signed_g2 = kpi_calculations.count_projects(df, "Analyse", associates=associates_smartplus, is_signed=True)
+    results.append(format_kpi_result("Analyse Signe (LP DP GP GB PM)", analyse_signed_g2))
+    print(f"Analyse Signé Group 2 (last 24m): {analyse_signed_g2.sum()}")
     
     # SPACER
     results.append({"KPI": "SPACE"})

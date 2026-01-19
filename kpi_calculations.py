@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 
-def get_monthly_counts(df, mask):
+def get_monthly_counts(df, mask, date_col="Date d'entrée"):
     """
     Helper function to resample filtered data by month over the last 24 months.
     Returns a pandas Series with Month as index and Count as value.
@@ -21,7 +21,19 @@ def get_monthly_counts(df, mask):
     filtered_df = df[mask].copy()
     
     # Ensure index is date for resampling
-    filtered_df = filtered_df.set_index("Date d'entrée")
+    # Use the specified date column
+    if date_col not in filtered_df.columns:
+         print(f"Warning: Column {date_col} not found for resampling. Returning 0s.")
+         return pd.Series(0, index=full_range)
+
+    # Ensure date type
+    if not pd.api.types.is_datetime64_any_dtype(filtered_df[date_col]):
+        filtered_df[date_col] = pd.to_datetime(filtered_df[date_col], errors='coerce')
+    
+    # Drop rows with invalid dates in the target column
+    filtered_df = filtered_df.dropna(subset=[date_col])
+
+    filtered_df = filtered_df.set_index(date_col)
     
     # Resample and count
     # Reindex fills missing months with 0
@@ -33,7 +45,6 @@ def filter_data(df, project_type, associates=None, categories=None, is_signed=Fa
     """
     Filters the DataFrame based on 'Type de projet', optionally 'Associé', 'Catégorie', 
     and 'Signed' status (Etat 1-4).
-    Dates are handled by get_monthly_counts.
     """
     if df is None:
         return pd.DataFrame()
@@ -45,11 +56,13 @@ def filter_data(df, project_type, associates=None, categories=None, is_signed=Fa
     if not pd.api.types.is_datetime64_any_dtype(df_clean["Date d'entrée"]):
         df_clean["Date d'entrée"] = pd.to_datetime(df_clean["Date d'entrée"], errors='coerce')
     
-    # Drop rows without dates as they can't be counted in monthly stats
-    df_clean = df_clean.dropna(subset=["Date d'entrée"])
-
+    # Also ensure Date de signature is datetime if we might need it (though strictly handled in get_monthly_counts now)
+    if "Date de signature" in df_clean.columns and not pd.api.types.is_datetime64_any_dtype(df_clean["Date de signature"]):
+         df_clean["Date de signature"] = pd.to_datetime(df_clean["Date de signature"], errors='coerce')
+    
     # Basic mask: Type de projet
     # Using case insensitive match
+    # Handle NaN in Type de projet
     mask = df_clean['Type de projet'].astype(str).str.strip().str.lower() == project_type.lower()
 
     if associates:
@@ -102,9 +115,19 @@ def count_projects(df, project_type, associates=None, categories=None, is_signed
     filtered_df = filter_data(df, project_type, associates, categories, is_signed)
 
     if filtered_df.empty:
+         # Return empty series 
+         # Need to call get_monthly_counts with empty DF to get zero-filled series with correct index
+         # Just creating an empty DF with same columns
          pass 
 
     # We need a mask for get_monthly_counts relative to filtered_df
     mask = pd.Series(True, index=filtered_df.index)
-    return get_monthly_counts(filtered_df, mask)
+    
+    # Determine which date column to use
+    if is_signed:
+        target_date_col = "Date de signature"
+    else:
+        target_date_col = "Date d'entrée"
+        
+    return get_monthly_counts(filtered_df, mask, date_col=target_date_col)
 

@@ -237,13 +237,13 @@ def main():
 
     # --- 2. Analyse Portfolio ---
     cfg_anal_chart_only = [
-        ("Analyse (PB DDL CA)", "Smart", C_G1, 'bar'),
-        ("Analyse (LP GB)", "Smart +", C_G2, 'bar')
+        ("Analyse (AC FP PB DDL CA)", "Smart", C_G1, 'bar'),
+        ("Analyse (LP DP GP GB PM)", "Smart +", C_G2, 'bar')
     ]
     
     cfg_anal_signed_chart = [
-        ("Analyse Signe (Telecoms Energie...)", "Smart", C_G1, 'bar'), 
-        ("Analyse Signe (QOFI IT...)", "Smart +", C_G2, 'bar')
+        ("Analyse Signe (AC FP PB DDL CA)", "Smart", C_G1, 'bar'), 
+        ("Analyse Signe (LP DP GP GB PM)", "Smart +", C_G2, 'bar')
     ]
 
     # 3. Analyse Input
