@@ -1,0 +1,65 @@
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-slate-800 mb-2">Smart Weekly Helper</h1>
+        <p class="text-gray-600">Générez vos KPIs commerciaux en toute sécurité. Vos données restent sur votre
+            ordinateur.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 max-w-4xl w-full">
+
+        <!-- Upload Card -->
+        <div
+            class="bg-white p-8 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow text-center">
+            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                </svg>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">Importer un Fichier</h2>
+            <p class="text-gray-500 mb-6 text-sm">Glissez votre fichier Excel "Base Stats" pour lancer l'analyse.</p>
+
+            <label
+                class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg shadow transition-colors inline-block">
+                <span>Sélectionner Excel</span>
+                <input type="file" class="hidden" (change)="onFileSelected($event)" accept=".xlsx, .xls">
+            </label>
+
+            <div *ngIf="isLoading" class="mt-4 text-blue-600 flex items-center justify-center gap-2">
+                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                Traitement en cours...
+            </div>
+            <p *ngIf="errorMsg" class="mt-4 text-red-500 text-sm">{{ errorMsg }}</p>
+
+        </div>
+
+        <!-- Demo Card -->
+        <div
+            class="bg-white p-8 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow text-center">
+            <div
+                class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">Mode Démonstration</h2>
+            <p class="text-gray-500 mb-6 text-sm">Visualisez un exemple de tableau de bord avec des données fictives.
+            </p>
+
+            <button (click)="launchDemo()"
+                class="bg-white border-2 border-gray-200 hover:border-amber-400 hover:text-amber-600 text-gray-600 font-medium py-2 px-6 rounded-lg transition-colors">
+                Lancer la Démo
+            </button>
+        </div>
+
+    </div>
+</div>

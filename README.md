@@ -1,64 +1,27 @@
-# Smart Weekly Helper
+# SmartWeeklyHelper
 
-## Description
-**Smart Weekly Helper** est un outil d'automatisation conçu pour simplifier le reporting hebdomadaire. 
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
 
-À partir d'un fichier Excel d'export (Base Stats), l'application :
-1. **Extrait et nettoie** les données projets.
-2. **Calcule** automatiquement les KPIs pour les départements Commerce et Analyse (Projets entrants, Signatures, Ratios).
-3. **Génère** deux fichiers de sortie :
-   - 📊 `Donnees_Brutes_KPI.xlsx` : Un fichier Excel contenant tous les tableaux de résultats calculés.
-   - 📈 `dashboard_kpi.html` : Un tableau de bord interactif et visuel (graphiques Plotly) consultable dans n'importe quel navigateur web.
+## Development server
 
-## Installation
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-### Prérequis
-- **Python 3.8** ou version supérieure.
-- Un terminal de commande (PowerShell, CMD, ou Terminal).
+## Code scaffolding
 
-### Installation des dépendances
-1. Ouvrez votre terminal ou invite de commande.
-2. Naviguez vers le dossier du projet.
-3. Installez les librairies nécessaires via `pip` :
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
-```bash
-pip install -r requirements.txt
-```
+## Build
 
-*Le fichier `requirements.txt` contient les bibliothèques `pandas`, `plotly`, `openpyxl`, etc.*
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-## Utilisation
+## Running unit tests
 
-### Lancement rapide
-La méthode la plus simple est d'utiliser le script principal qui orchestre tout le processus :
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-1. Lancez le script :
-   ```bash
-   python run_app.py
-   ```
-2. Une fenêtre de dialogue s'ouvre. **Sélectionnez votre fichier Excel source** (ex: `Fichier sivi Stats cce Smart.xlsx`).
-3. Laissez l'outil travailler. La console affichera la progression.
-4. Une fois terminé ("SUCCÈS !"), vous trouverez les fichiers générés dans le dossier du projet.
+## Running end-to-end tests
 
-### Fichiers Générés
-- **`Donnees_Brutes_KPI.xlsx`** : Utilisez ce fichier pour vos analyses chiffrées précises ou pour copier-coller les tableaux.
-- **`dashboard_kpi.html`** : Double-cliquez pour ouvrir le rapport visuel dans Chrome, Edge ou Firefox.
+Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
-## Développement & Maintenance
+## Further help
 
-Le code a été structuré pour être maintenable et respecte les standards PEP 8.
-
-### Structure du projet
-- `run_app.py` : Point d'entrée principal (GUI de sélection de fichier).
-- `extract_data.py` : Logique d'extraction des données, calcul via `kpi_calculations`, et export Excel.
-- `generate_dashboard.py` : Création des graphiques Plotly et génération du HTML.
-- `kpi_calculations.py` : Cœur logique contenant les règles de filtrage et de calcul des dates.
-- `tests/` : Dossier contenant les tests unitaires.
-
-### Tests Unitaires
-Pour vérifier que les calculs sont toujours corrects après une modification, exécutez la suite de tests :
-
-```bash
-python -m unittest discover tests
-```
-*Tous les tests doivent afficher "OK".*
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
