@@ -299,22 +299,45 @@ export class KpiService {
         isSigned: boolean = false
     ): { data: number[], total: number } {
 
+        // Helper: safe date parser
+        const parseDate = (val: any): Date | null => {
+            if (val instanceof Date) return val;
+            if (!val) return null;
+
+            // Try standard Date parsing
+            const d = new Date(val);
+            if (!isNaN(d.getTime())) return d;
+
+            // Try DD/MM/YYYY (French format common in these files)
+            if (typeof val === 'string' && val.match(/^\d{1,2}\/\d{1,2}\/\d{4}/)) {
+                const parts = val.split('/');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1;
+                    const year = parseInt(parts[2], 10);
+                    const dFixed = new Date(year, month, day);
+                    if (!isNaN(dFixed.getTime())) return dFixed;
+                }
+            }
+            return null;
+        };
+
         const filtered = data.filter(row => {
             // 1. Project Type
             const rowType = String(row['type_de_projet'] || '').trim().toLowerCase();
             if (rowType !== type.toLowerCase()) return false;
 
-            // 2. Associates
+            // 2. Associates (Compare lower to lower)
             if (associates) {
-                const rowAssoc = String(row['associe'] || '').trim().toUpperCase();
-                if (!associates.includes(rowAssoc)) return false;
+                const rowAssoc = String(row['associe'] || '').trim().toLowerCase();
+                const targetAssociates = associates.map(a => a.toLowerCase());
+                if (!targetAssociates.includes(rowAssoc)) return false;
             }
 
             // 3. Categories
             if (categories) {
-                const rowCat = String(row['categorie'] || '').trim();
-                // Simple check (case insensitive lenient)
-                if (!categories.some(c => c.toLowerCase() === rowCat.toLowerCase())) return false;
+                const rowCat = String(row['categorie'] || '').trim().toLowerCase();
+                if (!categories.some(c => c.toLowerCase() === rowCat)) return false;
             }
 
             // 4. Signed
@@ -332,18 +355,18 @@ export class KpiService {
         const dateField = isSigned ? "date_signature" : "date_entree";
 
         filtered.forEach(row => {
-            let dateVal = row[dateField];
+            const dateVal = parseDate(row[dateField]);
 
-            // Explicitly parse string date if needed (SheetJS cellDates:true should handle this, 
-            // but robustness is key if cell is text)
-            if (!(dateVal instanceof Date) && typeof dateVal === 'string') {
-                const parsed = new Date(dateVal);
-                if (!isNaN(parsed.getTime())) dateVal = parsed;
-            }
+            if (dateVal) {
+                // Fix for Timezone shifting:
+                // Excel dates often come as midnight (00:00:00). 
+                // Timezone offsets can shift this to 23:00:00 of the PREVIOUS day.
+                // We add 12 hours to be safely in the middle of the day.
+                const safeDate = new Date(dateVal);
+                safeDate.setHours(safeDate.getHours() + 12);
 
-            if (dateVal instanceof Date && !isNaN(dateVal.getTime())) {
-                const y = dateVal.getFullYear();
-                const m = String(dateVal.getMonth() + 1).padStart(2, '0');
+                const y = safeDate.getFullYear();
+                const m = String(safeDate.getMonth() + 1).padStart(2, '0');
                 const key = `${y}-${m}`;
                 const idx = months.indexOf(key);
                 if (idx >= 0) {

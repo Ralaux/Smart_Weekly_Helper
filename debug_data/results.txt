@@ -1,0 +1,21 @@
+
+--- DEEP DIVE: Dec 2025 Rows ---
+Row 37: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 381: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 382: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 383: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 384: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 385: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 386: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 387: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 388: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 389: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 390: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 391: Raw='2025-12-08 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 392: Raw='2025-12-08 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 393: Raw='2025-12-08 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 394: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 395: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 396: Raw='2025-12-01 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Row 398: Raw='2025-12-08 00:00:00' Type=<class 'pandas._libs.tslibs.timestamps.Timestamp'>
+Total Dec 2025 rows found: 18
