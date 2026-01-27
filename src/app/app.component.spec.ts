@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'smart-weekly-helper' title`, () => {
+  it(`should have the 'excelsior' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('smart-weekly-helper');
+    expect(app.title).toEqual('excelsior');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, smart-weekly-helper');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, excelsior');
   });
 });

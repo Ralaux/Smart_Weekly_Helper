@@ -9,5 +9,5 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.component.css' // Note: singular styleUrl in recent angular
 })
 export class AppComponent {
-  title = 'smart-weekly-helper';
+  title = 'excelsior';
 }
